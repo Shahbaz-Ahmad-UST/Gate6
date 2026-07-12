@@ -80,19 +80,14 @@ jobs:
             sleep 2
           done
 
-      - name: Run Flyway Migrations
-        # NOTE: requires the Flyway Gradle plugin applied in build.gradle.kts (see below)
-        # and real migration scripts under src/main/resources/db/migration.
-        # If you don't have migration scripts, tell me and we'll do this a different way
-        # (e.g. load a schema.sql via `mysql` client instead).
-        run: |
-          ./gradlew flywayMigrate \
-            --no-configuration-cache \
-            -Dflyway.url="$DB_JDBC_URL" \
-            -Dflyway.user="$DB_USER" \
-            -Dflyway.password="$DB_PASSWORD" \
-            -Dflyway.locations=filesystem:src/main/resources/db/migration \
-            --info
+      # NOTE: No standalone Flyway migration step here. Unlike a repository-only
+      # test suite, CheckoutE2ETest goes through a real HTTP backend
+      # (AuthClient/ProductClient/CartClient/OrderClient at BACKEND_URL).
+      # That backend owns its own schema and migrates itself on startup
+      # (e.g. Spring Boot + Flyway auto-run). The step below that starts
+      # the backend is what actually creates the schema — see the
+      # "Start Backend" step (TODO — needs confirmation of how the backend
+      # app is launched: Docker image, `bootRun`, or a checked-out repo).
 
       - name: Install Xvfb (virtual display for Selenium/Selenide fallback)
         run: sudo apt-get update && sudo apt-get install -y xvfb
