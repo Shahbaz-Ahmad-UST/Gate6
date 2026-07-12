@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.ust.sdet"
-version = "0.1.0"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
@@ -23,6 +23,9 @@ val slf4jVersion = "2.0.17"
 val testcontainersVersion = "1.21.3"
 val flywayVersion = "10.22.0"
 val mysqlVersion = "9.4.0"
+val restAssuredVersion = "5.5.6"
+val jacksonVersion = "2.20.0"
+
 
 java {
     sourceCompatibility = JavaVersion.VERSION_22
@@ -31,34 +34,68 @@ java {
 
 dependencies {
 
+    // ---------------- BOMs ----------------
+
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
     testImplementation(platform("io.cucumber:cucumber-bom:$cucumberVersion"))
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
 
+    // ---------------- Selenium ----------------
+
     testImplementation("org.seleniumhq.selenium:selenium-java:$seleniumVersion")
     testImplementation("com.codeborne:selenide:$selenideVersion")
 
+    // ---------------- JUnit ----------------
+
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
+
+    // ---------------- Cucumber ----------------
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
     testImplementation("io.cucumber:cucumber-picocontainer")
 
+    // ---------------- REST Assured ----------------
+
+    testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
+
+    testImplementation("io.rest-assured:json-path:${restAssuredVersion}")
+
+    testImplementation("io.rest-assured:xml-path:${restAssuredVersion}")
+
+    testImplementation("io.rest-assured:json-schema-validator:${restAssuredVersion}")
+
+    // ---------------- Jackson ----------------
+
+    testImplementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
+
+    // ---------------- Allure ----------------
+
     testImplementation("io.qameta.allure:allure-cucumber7-jvm")
     testImplementation("io.qameta.allure:allure-junit5")
+
+    // ---------------- Extent Reports ----------------
 
     testImplementation("com.aventstack:extentreports:$extentVersion")
     testImplementation("tech.grasshopper:extentreports-cucumber7-adapter:$extentCucumberAdapterVersion")
 
+    // ---------------- Logging ----------------
+
     testImplementation("org.slf4j:slf4j-simple:$slf4jVersion")
+
+    // ---------------- TestContainers ----------------
 
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
 
+    // ---------------- Flyway ----------------
+
     testImplementation("org.flywaydb:flyway-core:$flywayVersion")
     testImplementation("org.flywaydb:flyway-mysql:$flywayVersion")
+
+    // ---------------- MySQL ----------------
 
     testImplementation("com.mysql:mysql-connector-j:$mysqlVersion")
 }
@@ -79,98 +116,35 @@ tasks.withType<Test>().configureEach {
 
     maxParallelForks = 1
 
-    systemProperty("baseUrl", System.getProperty("baseUrl", "http://localhost:5173"))
-    systemProperty("headless", System.getProperty("headless", "false"))
-    systemProperty("build.label", System.getProperty("build.label", "local"))
-    systemProperty("allure.results.directory", System.getProperty("allure.results.directory", "build/allure-results"))
+    systemProperty(
+        "baseUrl",
+        System.getProperty("baseUrl", "http://localhost:5173")
+    )
+
+    systemProperty(
+        "headless",
+        System.getProperty("headless", "false")
+    )
+
+    systemProperty(
+        "build.label",
+        System.getProperty("build.label", "local")
+    )
+
+    systemProperty(
+        "allure.results.directory",
+        System.getProperty(
+            "allure.results.directory",
+            "build/allure-results"
+        )
+    )
 
     testLogging {
-        events("passed", "skipped", "failed")
+        events("passed", "failed", "skipped")
     }
 }
 
 tasks.test {
     description = "Runs all tests."
     group = "verification"
-}
-
-val CatalogPomTest by tasks.registering(Test::class) {
-
-    description = "Runs CatalogPomTest"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/CatalogPomTest.class")
-
-    maxParallelForks = 1
-}
-
-val orderSuite by tasks.registering(Test::class) {
-    description = "Runs Exercise1-3 and Milestone tests together"
-    group = "verification"
-    useProjectTestClasses()
-    include("**/Exercise1Test.class", "**/Exercise2Test.class", "**/Exercise3Test.class", "**/MilestoneTest.class","**/AllureReportInsightTest.class","**/CategoryDemonstrationTest.class")
-    maxParallelForks = 1
-}
-
-val exercise1Test by tasks.registering(Test::class) {
-    description = "Runs Exercise1Test"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/Exercise1Test.class")
-    maxParallelForks = 1
-}
-
-val exercise2Test by tasks.registering(Test::class) {
-    description = "Runs Exercise2Test"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/Exercise2Test.class")
-    maxParallelForks = 1
-}
-
-val exercise3Test by tasks.registering(Test::class) {
-    description = "Runs Exercise3Test"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/Exercise3Test.class")
-    maxParallelForks = 1
-}
-
-val milestoneTest by tasks.registering(Test::class) {
-    description = "Runs MilestoneTest"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/MilestoneTest.class")
-    maxParallelForks = 1
-}
-
-val allureReportInsightTest by tasks.registering(Test::class) {
-    description = "Runs AllureReportInsightTest"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/AllureReportInsightTest.class")
-    maxParallelForks = 1
-}
-
-val categoryDemonstrationTest by tasks.registering(Test::class) {
-    description = "Runs CategoryDemonstrationTest (intentionally failing, for Allure report demo only)"
-    group = "verification"
-
-    useProjectTestClasses()
-
-    include("**/CategoryDemonstrationTest.class")
-    maxParallelForks = 1
-    ignoreFailures = true
 }
