@@ -164,9 +164,6 @@ jobs:
           keep_reports: 20
           gh_pages: gh-pages
 
-      - name: Remove Nested Git
-        if: always()
-        run: rm -rf allure-history/.git
 
       - name: Publish Allure Report
         if: always()
