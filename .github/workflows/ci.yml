@@ -34,6 +34,15 @@ jobs:
           --health-timeout=5s
           --health-retries=10
 
+    env:
+      DB_JDBC_URL: jdbc:mysql://localhost:3306/shopkart
+      DB_USER: root
+      DB_PASSWORD: rajasoN@0073
+      BASE_URL: ${{ secrets.APP_BASE_URL }}
+      CUSTOMER_1_NAME: ${{ secrets.CUSTOMER_1_NAME }}
+      CUSTOMER_2_NAME: ${{ secrets.CUSTOMER_2_NAME }}
+      CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+
     steps:
 
       - name: Checkout Repository
@@ -51,6 +60,27 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
+      - name: Wait for MySQL
+        run: |
+          for i in $(seq 1 30); do
+            mysqladmin ping -h127.0.0.1 -P3306 -uroot -prajasoN@0073 --silent && break
+            echo "Waiting for MySQL... ($i)"
+            sleep 2
+          done
+
+      - name: Run Flyway Migrations
+        # NOTE: requires the Flyway Gradle plugin applied in build.gradle.kts (see below)
+        # and real migration scripts under src/main/resources/db/migration.
+        # If you don't have migration scripts, tell me and we'll do this a different way
+        # (e.g. load a schema.sql via `mysql` client instead).
+        run: |
+          ./gradlew flywayMigrate \
+            -Dflyway.url="$DB_JDBC_URL" \
+            -Dflyway.user="$DB_USER" \
+            -Dflyway.password="$DB_PASSWORD" \
+            -Dflyway.locations=filesystem:src/main/resources/db/migration \
+            --info
+
       - name: Run Test Suite
         run: ./gradlew test --rerun-tasks --info
         continue-on-error: true
@@ -61,9 +91,14 @@ jobs:
             -DDB_USER=root
             -DDB_PASSWORD=rajasoN@0073
             -Dallure.results.directory=build/allure-results
-          BASE_URL: ${{ secrets.APP_BASE_URL }}
-          CUSTOMER_2_NAME: ${{ secrets.CUSTOMER_2_NAME }}
-          CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+
+      - name: Show Test Result Summary (debug)
+        if: always()
+        run: |
+          echo "---- allure-results dir ----"
+          ls -la build/allure-results 2>/dev/null || echo "MISSING: build/allure-results"
+          echo "---- gradle test reports dir ----"
+          find build/test-results -name "*.xml" 2>/dev/null | head -20 || echo "MISSING: build/test-results"
 
       - name: Upload Test Log
         if: always()
@@ -74,15 +109,18 @@ jobs:
           if-no-files-found: warn
 
       - name: Verify Allure Results
+        if: always()
         run: |
-          if [ ! -d build/allure-results ] || [ -z "$(ls -A build/allure-results 2>/dev/null)" ]; then
-            echo "::error::No Allure results found"
+          mkdir -p build/allure-results
+          if [ -z "$(ls -A build/allure-results 2>/dev/null)" ]; then
+            echo "::error::No Allure results found — tests likely never executed. Check the 'Run Test Suite' --info log above for class-init errors (missing env vars) or compile errors."
             exit 1
           fi
 
       - name: Write Allure environment info
         if: always()
         run: |
+          mkdir -p build/allure-results
           cat > build/allure-results/environment.properties << ENV
           Browser=Chrome (headless)
           BaseURL=${{ secrets.APP_BASE_URL }}
