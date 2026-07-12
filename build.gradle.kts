@@ -1,8 +1,19 @@
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.testing.Test
 
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+
+        classpath("com.mysql:mysql-connector-j:9.4.0")
+    }
+}
+
 plugins {
     java
+    id("org.flywaydb.flyway") version "10.22.0"
 }
 
 group = "com.ust.shopkart"
@@ -30,6 +41,13 @@ val jacksonVersion = "2.20.0"
 java {
     sourceCompatibility = JavaVersion.VERSION_22
     targetCompatibility = JavaVersion.VERSION_22
+}
+
+flyway {
+    url = System.getProperty("flyway.url", "jdbc:mysql://localhost:3306/shopkart")
+    user = System.getProperty("flyway.user", "root")
+    password = System.getProperty("flyway.password", "rajasoN@0073")
+    locations = arrayOf("filesystem:src/main/resources/db/migration")
 }
 
 dependencies {
