@@ -33,17 +33,4 @@ public class SpecFactory {
                     .addHeader("Content-Type","application/json")
                     .build();
 
-
-    public static ResponseSpecification commonJsonFetchResponse =
-            new ResponseSpecBuilder()
-                    .expectContentType(ContentType.JSON)
-                    .expectStatusCode(200)
-                    .build();
-
-
-
-
-
-
-
 }

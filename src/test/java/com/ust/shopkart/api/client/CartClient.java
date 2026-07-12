@@ -1,8 +1,5 @@
 package com.ust.shopkart.api.client;
 
-import com.ust.shopkart.support.TestEnvironment;
-import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 
 import java.util.Map;

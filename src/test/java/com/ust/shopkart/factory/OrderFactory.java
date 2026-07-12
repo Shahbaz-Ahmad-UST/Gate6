@@ -14,7 +14,7 @@ public class OrderFactory {
         this.repository = repository;
     }
 
-    /** Creates a placed order with default values, returns the persisted row. */
+    //Creates a placed order with default values, returns the persisted row.
     public DummyOrderRow createPlacedOrder(String address) {
         long cartId = cartIdSequence.incrementAndGet();
         int totalPaise = 49900;
@@ -22,8 +22,4 @@ public class OrderFactory {
         return repository.findById(id);
     }
 
-    public DummyOrderRow createPlacedOrder(long cartId, int totalPaise, String address) {
-        long id = repository.insert(cartId, "PLACED", totalPaise, address);
-        return repository.findById(id);
-    }
 }

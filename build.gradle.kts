@@ -34,65 +34,64 @@ java {
 
 dependencies {
 
-    // ---------------- BOMs ----------------
-
+    // BOM
     testImplementation(platform("org.junit:junit-bom:$junitVersion"))
     testImplementation(platform("io.cucumber:cucumber-bom:$cucumberVersion"))
     testImplementation(platform("io.qameta.allure:allure-bom:$allureVersion"))
     testImplementation(platform("org.testcontainers:testcontainers-bom:$testcontainersVersion"))
 
-    // ---------------- Selenium ----------------
+    // Selenium 
 
     testImplementation("org.seleniumhq.selenium:selenium-java:$seleniumVersion")
     testImplementation("com.codeborne:selenide:$selenideVersion")
 
-    // ---------------- JUnit ----------------
+    //   JUnit  
 
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.junit.platform:junit-platform-suite")
 
-    // ---------------- Cucumber ----------------
+    //   Cucumber  
 
     testImplementation("io.cucumber:cucumber-java")
     testImplementation("io.cucumber:cucumber-junit-platform-engine")
     testImplementation("io.cucumber:cucumber-picocontainer")
 
-    // ---------------- REST Assured ----------------
+    //   REST Assured  
 
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
     testImplementation("io.rest-assured:json-path:${restAssuredVersion}")
     testImplementation("io.rest-assured:xml-path:${restAssuredVersion}")
     testImplementation("io.rest-assured:json-schema-validator:${restAssuredVersion}")
 
-    // ---------------- Jackson ----------------
+    //   Jackson  
 
     testImplementation("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
 
-    // ---------------- Allure ----------------
+    //   Allure  
 
     testImplementation("io.qameta.allure:allure-cucumber7-jvm")
     testImplementation("io.qameta.allure:allure-junit5")
 
-    // ---------------- Extent Reports ----------------
+    //   Extent Reports  
 
     testImplementation("com.aventstack:extentreports:$extentVersion")
     testImplementation("tech.grasshopper:extentreports-cucumber7-adapter:$extentCucumberAdapterVersion")
 
-    // ---------------- Logging ----------------
+    //   Logging  
 
     testImplementation("org.slf4j:slf4j-simple:$slf4jVersion")
 
-    // ---------------- TestContainers ----------------
+    //   TestContainers  
 
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation("org.testcontainers:mysql")
 
-    // ---------------- Flyway ----------------
+    //   Flyway  
 
     testImplementation("org.flywaydb:flyway-core:$flywayVersion")
     testImplementation("org.flywaydb:flyway-mysql:$flywayVersion")
 
-    // ---------------- MySQL ----------------
+    //   MySQL  
 
     testImplementation("com.mysql:mysql-connector-j:$mysqlVersion")
 }

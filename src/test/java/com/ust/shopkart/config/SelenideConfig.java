@@ -52,14 +52,13 @@ public final class SelenideConfig {
         options.setExperimentalOption("prefs", prefs);
 
         // Uncomment for Selenoid
-        /*
+
         Map<String, Object> selenoidOptions = new HashMap<>();
         selenoidOptions.put("enableVNC", true);
         selenoidOptions.put("enableVideo", true);
         selenoidOptions.put("name", "Retail Lab UI Tests");
 
         options.setCapability("selenoid:options", selenoidOptions);
-        */
 
         Configuration.browserCapabilities = options;
     }
