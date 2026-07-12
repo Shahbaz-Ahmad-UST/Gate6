@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 jobs:
   shopkart-test:
@@ -93,15 +94,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y xvfb
 
-      #
-      # Dummy repository test
-      #
       - name: Run Repository Suite
         run: ./gradlew repositorySuite --rerun-tasks --info
 
-      #
-      # API / UI / E2E tests
-      #
       - name: Run Application Suite
         run: |
           xvfb-run -a ./gradlew applicationSuite \
@@ -126,6 +121,67 @@ jobs:
         with:
           name: allure-results
           path: build/allure-results
+
+      - name: Verify Allure Results
+        if: always()
+        run: |
+          mkdir -p build/allure-results
+
+          if [ -z "$(ls -A build/allure-results 2>/dev/null)" ]; then
+            echo "::error::No Allure results generated"
+            exit 1
+          fi
+
+      - name: Write Allure Environment
+        if: always()
+        run: |
+          mkdir -p build/allure-results
+
+          cat > build/allure-results/environment.properties << EOF
+          Browser=Chrome Headless
+          BaseURL=${{ secrets.APP_BASE_URL }}
+          Build=${{ github.run_number }}
+          Branch=${{ github.ref_name }}
+          Commit=${{ github.sha }}
+          OS=ubuntu-latest
+          EOF
+
+      - name: Checkout gh-pages
+        if: always()
+        continue-on-error: true
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Build Allure Report
+        if: always()
+        uses: simple-elf/allure-report-action@master
+        with:
+          allure_results: build/allure-results
+          allure_history: allure-history
+          allure_report: allure-report
+          keep_reports: 20
+          gh_pages: gh-pages
+
+      - name: Remove Nested Git
+        if: always()
+        run: rm -rf allure-history/.git
+
+      - name: Publish Allure Report
+        if: always()
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
+
+      - name: Upload Allure Report Artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
 
       - name: Fail Build If Tests Failed
         if: always()
