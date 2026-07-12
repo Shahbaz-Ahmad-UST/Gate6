@@ -1,0 +1,25 @@
+"DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
+"Fetches the cart by id and confirms it still reflects the empty state","67","get cart by cartId of login user","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.TotalCartApiTest","com.ust.shopkart.tests.TotalCartApiTest","getCart"
+"Creates a cart and verifies it starts OPEN, empty, with zero total","36","create cart of login user","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.TotalCartApiTest","com.ust.shopkart.tests.TotalCartApiTest","createCart"
+"Alice places an order; Alice can fetch it (200), Bob cannot (403)","52","Owner gets 200; another customer gets 403","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.OrderAccessApiTest","com.ust.shopkart.tests.OrderAccessApiTest","ownerCanAccessButOtherCustomerCannot"
+"Creates a dummy order via the factory, then reads it back through the repository and verifies every field matches","346","Create and fetch a dummy order","","2026-07-12","passed","2026-07-12","","com.ust.shopkart.tests.OrderTest","com.ust.shopkart.tests.OrderTest","createAndFetchDummyOrder"
+"Adds a bottle and a bag, verifies per-line totals and grand total via API, then cross-checks quantities and unit prices directly in the database","29","Add products to cart and validate total with database","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.TotalCartApiTest","com.ust.shopkart.tests.TotalCartApiTest","addToCart_ValidateTotal_Price_With_Database"
+"  As a shopper
+  I want to search products by SKU
+  So that I can see the matching product list","160","Search products by SKU","","2026-07-12","broken","2026-07-12","","Catalog search","Search products by SKU",""
+"Logs in and captures the auth token used by the rest of this ordered suite","48","Login with valid credentials","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.TotalCartApiTest","com.ust.shopkart.tests.TotalCartApiTest","validLogin"
+"SKU-CAP has zero stock; adding it to the cart should return 409","32","Cannot add out-of-stock product","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.OutOfStockApiTest","com.ust.shopkart.tests.OutOfStockApiTest","addOutOfStockItem"
+"  As a shopper
+  I want to search products by SKU
+  So that I can see the matching product list","110","Search products by SKU","","2026-07-12","broken","2026-07-12","","Catalog search","Search products by SKU",""
+"    As a shopper
+    I want to search products and add to cart
+    so that I can place order successfully","9192","Successful checkout","","2026-07-12","broken","2026-07-12","","Checkout feature","Successful checkout",""
+"  As a shopper
+  I want to search products by SKU
+  So that I can see the matching product list","222","Search products by SKU","","2026-07-12","broken","2026-07-12","","Catalog search","Search products by SKU",""
+"Logs in, searches a product, builds a cart, places an order, then verifies both the API response and the underlying database row match","63","Checkout End-To-End","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.CheckoutE2ETest","com.ust.shopkart.tests.CheckoutE2ETest","checkoutE2E"
+"Places an order then cancels it, expecting CANCELLED status; cancelling again should be rejected with 409","1478","Cancel placed order","","2026-07-12","broken","2026-07-12","","com.ust.shopkart.tests.CancelOrderApiTest","com.ust.shopkart.tests.CancelOrderApiTest","cancelOrder"
+"  As a shopper
+  I want to search products by SKU
+  So that I can see the matching product list","179","Search products by SKU","","2026-07-12","broken","2026-07-12","","Catalog search","Search products by SKU",""
