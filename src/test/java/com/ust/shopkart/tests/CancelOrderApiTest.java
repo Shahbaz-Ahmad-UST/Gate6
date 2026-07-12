@@ -3,13 +3,20 @@ package com.ust.shopkart.tests;
 import com.ust.shopkart.api.client.AuthClient;
 import com.ust.shopkart.api.client.CartClient;
 import com.ust.shopkart.api.client.OrderClient;
+import com.ust.shopkart.report.ExtentTestListener;
 import com.ust.shopkart.support.TestEnvironment;
+import io.qameta.allure.*;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@Epic("Shopkart API")
+@Feature("Order Lifecycle")
+@Owner("SHAHBAZ AHMAD")
+@ExtendWith(ExtentTestListener.class)
 public class CancelOrderApiTest {
 
     private final AuthClient auth = new AuthClient();
@@ -18,6 +25,9 @@ public class CancelOrderApiTest {
 
     @Test
     @DisplayName("Cancel placed order")
+    @Story("Cancelling an order sets status to CANCELLED and blocks a second cancel")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Places an order then cancels it, expecting CANCELLED status; cancelling again should be rejected with 409")
     void cancelOrder() {
 
         // Login

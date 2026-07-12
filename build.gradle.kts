@@ -5,7 +5,7 @@ plugins {
     java
 }
 
-group = "com.ust.sdet"
+group = "com.ust.shopkart"
 version = "1.0.0"
 
 repositories {
@@ -60,11 +60,8 @@ dependencies {
     // ---------------- REST Assured ----------------
 
     testImplementation("io.rest-assured:rest-assured:$restAssuredVersion")
-
     testImplementation("io.rest-assured:json-path:${restAssuredVersion}")
-
     testImplementation("io.rest-assured:xml-path:${restAssuredVersion}")
-
     testImplementation("io.rest-assured:json-schema-validator:${restAssuredVersion}")
 
     // ---------------- Jackson ----------------
@@ -103,6 +100,7 @@ dependencies {
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.release.set(22)
+    options.compilerArgs.add("-parameters")
 }
 
 fun Test.useProjectTestClasses() {

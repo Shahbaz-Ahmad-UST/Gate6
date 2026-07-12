@@ -3,14 +3,19 @@ package com.ust.shopkart.tests;
 import com.ust.shopkart.api.client.AuthClient;
 import com.ust.shopkart.api.client.CartClient;
 import com.ust.shopkart.api.client.OrderClient;
+import com.ust.shopkart.report.ExtentTestListener;
 import com.ust.shopkart.support.TestEnvironment;
+import io.qameta.allure.*;
 import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
+@Epic("Shopkart API")
+@Feature("Order Access Control")
+@Owner("SHAHBAZ AHMAD")
+@ExtendWith(ExtentTestListener.class)
 public class OrderAccessApiTest {
 
     private final AuthClient authClient = new AuthClient();
@@ -19,6 +24,9 @@ public class OrderAccessApiTest {
 
     @Test
     @DisplayName("Owner gets 200; another customer gets 403")
+    @Story("Only the order owner can view their order; other customers are forbidden")
+    @Severity(SeverityLevel.CRITICAL)
+    @Description("Alice places an order; Alice can fetch it (200), Bob cannot (403)")
     void ownerCanAccessButOtherCustomerCannot() {
 
         // Alice Login

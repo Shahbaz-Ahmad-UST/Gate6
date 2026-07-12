@@ -1,9 +1,10 @@
-name: Order Repository CI
+name: Shopkart CI
 
 on:
   push:
     branches:
       - main
+
   pull_request:
     branches:
       - main
@@ -12,17 +13,21 @@ permissions:
   contents: write
 
 jobs:
-  order-test:
+  shopkart-test:
+
     runs-on: ubuntu-latest
 
     services:
       mysql:
         image: mysql:8.0
+
         env:
-          MYSQL_DATABASE: orders_db
+          MYSQL_DATABASE: shopkart_db
           MYSQL_ROOT_PASSWORD: rajasoN@0073
+
         ports:
           - 3306:3306
+
         options: >-
           --health-cmd="mysqladmin ping -h localhost -u root -prajasoN@0073"
           --health-interval=10s
@@ -30,10 +35,11 @@ jobs:
           --health-retries=10
 
     steps:
+
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK 22
+      - name: Setup Java 22
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -42,38 +48,61 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Grant Execute Permission for gradlew
+      - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Run Order Test Suite
-        run: ./gradlew orderSuite --info
+      - name: Run Test Suite
+        run: ./gradlew test --rerun-tasks --info
         continue-on-error: true
+
         env:
           JAVA_TOOL_OPTIONS: >
-            -DDB_JDBC_URL=jdbc:mysql://localhost:3306/orders_db
+            -DDB_JDBC_URL=jdbc:mysql://localhost:3306/shopkart_db
             -DDB_USER=root
             -DDB_PASSWORD=rajasoN@0073
             -Dallure.results.directory=build/allure-results
+          BASE_URL: ${{ secrets.APP_BASE_URL }}
+          CUSTOMER_2_NAME: ${{ secrets.CUSTOMER_2_NAME }}
+          CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
 
-      - name: Verify Allure results were generated
+      - name: Upload Test Log
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-log
+          path: build/logs/test.log
+          if-no-files-found: warn
+
+      - name: Verify Allure Results
         run: |
           if [ ! -d build/allure-results ] || [ -z "$(ls -A build/allure-results 2>/dev/null)" ]; then
-            echo "::error::build/allure-results is empty. Add 'testImplementation(\"io.qameta.allure:allure-junit5:\$allureVersion\")' to build.gradle.kts."
+            echo "::error::No Allure results found"
             exit 1
           fi
-          echo "Found $(ls build/allure-results | wc -l) files in allure-results"
 
-      - name: Get previous Allure history
-        uses: actions/checkout@v4
+      - name: Write Allure environment info
+        if: always()
+        run: |
+          cat > build/allure-results/environment.properties << ENV
+          Browser=Chrome (headless)
+          BaseURL=${{ secrets.APP_BASE_URL }}
+          Build=${{ github.run_number }}
+          OS=ubuntu-latest (GitHub Actions)
+          Branch=${{ github.ref_name }}
+          Commit=${{ github.sha }}
+          ENV
+
+      - name: Checkout gh-pages
         if: always()
         continue-on-error: true
+        uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: gh-pages
 
-      - name: Build Allure report with history
-        uses: simple-elf/allure-report-action@master
+      - name: Build Allure Report
         if: always()
+        uses: simple-elf/allure-report-action@master
         with:
           allure_results: build/allure-results
           allure_history: allure-history
@@ -81,19 +110,11 @@ jobs:
           keep_reports: 20
           gh_pages: gh-pages
 
-      - name: Remove nested .git left inside allure-history
+      - name: Remove Nested Git
         if: always()
         run: sudo rm -rf allure-history/.git
 
-      - name: Verify Allure history was populated
-        run: |
-          if [ ! -d allure-history ] || [ -z "$(ls -A allure-history 2>/dev/null)" ]; then
-            echo "::error::allure-history is empty after report generation. Check the 'Build Allure report' step logs above."
-            exit 1
-          fi
-          echo "allure-history contains $(find allure-history -type f | wc -l) files"
-
-      - name: Publish Allure report to GitHub Pages
+      - name: Publish Allure
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -101,10 +122,16 @@ jobs:
           publish_branch: gh-pages
           publish_dir: allure-history
 
-      - name: Fail job if tests failed
+      - name: Upload Allure Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-report
+          path: allure-report
+
+      - name: Fail if Tests Failed
         if: always()
         run: |
           if [ -d build/reports/tests ] && grep -rl "FAILED" build/reports/tests --include="*.html" > /dev/null 2>&1; then
-            echo "Tests failed - see Allure report link above"
             exit 1
           fi
