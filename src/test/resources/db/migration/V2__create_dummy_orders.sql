@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS dummy_orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    cart_id BIGINT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    total_paise INT NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

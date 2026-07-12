@@ -1,17 +1,13 @@
 package com.ust.shopkart.repository;
 
 import com.ust.shopkart.config.DatabaseConfig;
-import com.ust.shopkart.model.Order;
+import com.ust.shopkart.model.DummyOrderRow;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
 
 public class OrderRepository {
 
@@ -21,82 +17,65 @@ public class OrderRepository {
         this.config = config;
     }
 
-    public Order save(Order order) {
-        String sql = "INSERT INTO orders (sku, qty, price, order_date, shipped) VALUES (?, ?, ?, ?, ?)";
-
-        try (Connection connection = openConnection();
-             PreparedStatement statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-
-            statement.setString(1, order.sku());
-            statement.setInt(2, order.qty());
-            statement.setDouble(3, order.price());
-            statement.setDate(4, Date.valueOf(order.orderDate()));
-            statement.setBoolean(5, order.shipped());
-            statement.executeUpdate();
-
-            try (ResultSet keys = statement.getGeneratedKeys()) {
-                if (keys.next()) {
-                    long id = keys.getLong(1);
-                    return new Order(id, order.sku(), order.qty(), order.price(), order.orderDate(), order.shipped());
-                }
-            }
-            return order;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public long count() {
-        String sql = "SELECT COUNT(*) FROM orders";
-
-        try (Connection connection = openConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-
-            result.next();
-            return result.getLong(1);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public List<Order> findAll() {
-        String sql = "SELECT id, sku, qty, price, order_date, shipped FROM orders";
-        List<Order> orders = new ArrayList<>();
-
-        try (Connection connection = openConnection();
-             PreparedStatement statement = connection.prepareStatement(sql);
-             ResultSet result = statement.executeQuery()) {
-
-            while (result.next()) {
-                orders.add(new Order(
-                        result.getLong("id"),
-                        result.getString("sku"),
-                        result.getInt("qty"),
-                        result.getDouble("price"),
-                        result.getDate("order_date").toLocalDate(),
-                        result.getBoolean("shipped")
-                ));
-            }
-            return orders;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
+    private Connection connect() throws Exception {
+        return DriverManager.getConnection(
+                config.jdbcUrl(),
+                config.username(),
+                config.password()
+        );
     }
 
     public void reset() {
-        String sql = "TRUNCATE TABLE orders";
-
-        try (Connection connection = openConnection();
-             Statement statement = connection.createStatement()) {
-
-            statement.execute(sql);
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("DELETE FROM dummy_orders");
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to reset dummy_orders table", e);
         }
     }
 
-    private Connection openConnection() throws SQLException {
-        return DriverManager.getConnection(config.jdbcUrl(), config.username(), config.password());
+    public long insert(long cartId, String status, int totalPaise, String address) {
+        String sql = "INSERT INTO dummy_orders (cart_id, status, total_paise, address) VALUES (?, ?, ?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setLong(1, cartId);
+            ps.setString(2, status);
+            ps.setInt(3, totalPaise);
+            ps.setString(4, address);
+            ps.executeUpdate();
+
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) {
+                    return keys.getLong(1);
+                }
+                throw new RuntimeException("Insert did not return a generated id");
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to insert dummy order", e);
+        }
+    }
+
+    public DummyOrderRow findById(long id) {
+        String sql = "SELECT id, cart_id, status, total_paise, address FROM dummy_orders WHERE id = ?";
+        try (Connection conn = connect();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setLong(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    throw new RuntimeException("No dummy order found with id " + id);
+                }
+                return new DummyOrderRow(
+                        rs.getLong("id"),
+                        rs.getLong("cart_id"),
+                        rs.getString("status"),
+                        rs.getInt("total_paise"),
+                        rs.getString("address")
+                );
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to fetch dummy order " + id, e);
+        }
     }
 }

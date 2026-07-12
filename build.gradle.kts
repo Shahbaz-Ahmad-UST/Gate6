@@ -146,3 +146,109 @@ tasks.test {
     description = "Runs all tests."
     group = "verification"
 }
+
+val OrderTest by tasks.registering(Test::class) {
+    description = "Runs DummyOrderTest (self-contained, DB-only, no backend/frontend needed)"
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/OrderTest.class")
+    maxParallelForks = 1
+}
+
+val CancelOrderApiTest by tasks.registering(Test::class) {
+    description = "Runs CancelOrderApiTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/CancelOrderApiTest.class")
+    maxParallelForks = 1
+}
+
+val CheckoutE2ETest by tasks.registering(Test::class) {
+    description = "Runs CheckoutE2ETest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/CheckoutE2ETest.class")
+    maxParallelForks = 1
+}
+val OrderAccessApiTest by tasks.registering(Test::class) {
+    description = "Runs OrderAccessApiTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/OrderAccessApiTest.class")
+    maxParallelForks = 1
+}
+
+val OutOfStockApiTest by tasks.registering(Test::class) {
+    description = "Runs OutOfStockApiTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/OutOfStockApiTest.class")
+    maxParallelForks = 1
+}
+val ProdutApiTest by tasks.registering(Test::class) {
+    description = "Runs ProdutApiTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/ProdutApiTest.class")
+    maxParallelForks = 1
+}
+
+val TotalCartApiTest by tasks.registering(Test::class) {
+    description = "Runs TotalCartApiTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/TotalCartApiTest.class")
+    maxParallelForks = 1
+}
+
+val RunCucumberTest by tasks.registering(Test::class) {
+    description = "Runs RunCucumberTest "
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/RunCucumberTest.class")
+    maxParallelForks = 1
+}
+
+
+val applicationSuite  by tasks.registering(Test::class) {
+    description = "Runs API, E2E and Cucumber tests"
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/CancelOrderApiTest.class")
+    include("**/CheckoutE2ETest.class")
+    include("**/OrderAccessApiTest.class")
+    include("**/OutOfStockApiTest.class")
+    include("**/ProdutApiTest.class")
+    include("**/TotalCartApiTest.class")
+    include("**/RunCucumberTest.class")
+
+    maxParallelForks = 1
+    ignoreFailures = true
+}
+
+val repositorySuite by tasks.registering(Test::class) {
+    description = "Repository database tests"
+    group = "verification"
+
+    useProjectTestClasses()
+
+    include("**/OrderTest.class")
+}
