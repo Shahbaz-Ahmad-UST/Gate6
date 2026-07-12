@@ -94,8 +94,11 @@ jobs:
             -Dflyway.locations=filesystem:src/main/resources/db/migration \
             --info
 
+      - name: Install Xvfb (virtual display for Selenium/Selenide fallback)
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
       - name: Run Test Suite
-        run: ./gradlew test --rerun-tasks --info
+        run: xvfb-run -a ./gradlew test --rerun-tasks --info -Dheadless=true
         continue-on-error: true
 
         env:
