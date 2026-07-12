@@ -6,8 +6,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-
+        // Flyway plugin needs BOTH the JDBC driver AND the MySQL dialect module
+        // on the buildscript classpath — Flyway core stopped bundling database
+        // support since v7, so mysql-connector-j alone isn't enough.
         classpath("com.mysql:mysql-connector-j:9.4.0")
+        classpath("org.flywaydb:flyway-mysql:10.22.0")
     }
 }
 
@@ -43,10 +46,12 @@ java {
     targetCompatibility = JavaVersion.VERSION_22
 }
 
+// Flyway plugin configuration — values overridable from the CLI via -Dflyway.xxx,
+// which is exactly what the CI step passes in
 flyway {
     url = System.getProperty("flyway.url", "jdbc:mysql://localhost:3306/shopkart")
     user = System.getProperty("flyway.user", "root")
-    password = System.getProperty("flyway.password", "rajasoN@0073")
+    password = System.getProperty("flyway.password", "")
     locations = arrayOf("filesystem:src/main/resources/db/migration")
 }
 

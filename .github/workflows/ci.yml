@@ -22,7 +22,7 @@ jobs:
         image: mysql:8.0
 
         env:
-          MYSQL_DATABASE: shopkart_db
+          MYSQL_DATABASE: shopkart
           MYSQL_ROOT_PASSWORD: rajasoN@0073
 
         ports:
@@ -39,9 +39,21 @@ jobs:
       DB_USER: root
       DB_PASSWORD: rajasoN@0073
       BASE_URL: ${{ secrets.APP_BASE_URL }}
+      BACKEND_URL: ${{ secrets.BACKEND_URL }}
+      USE_TESTCONTAINERS: "false"
       CUSTOMER_1_NAME: ${{ secrets.CUSTOMER_1_NAME }}
       CUSTOMER_2_NAME: ${{ secrets.CUSTOMER_2_NAME }}
+      CUSTOMER_3_NAME: ${{ secrets.CUSTOMER_3_NAME }}
       CUSTOMER_PASSWORD: ${{ secrets.CUSTOMER_PASSWORD }}
+      GRANT_TYPE: ${{ secrets.GRANT_TYPE }}
+      GRANT_SECRET: ${{ secrets.GRANT_SECRET }}
+      OAUTH_CLIENT_ID: ${{ secrets.OAUTH_CLIENT_ID }}
+      OAUTH_CLIENT_SECRET: ${{ secrets.OAUTH_CLIENT_SECRET }}
+      OAUTH_EXPIRED_CLIENT_ID: ${{ secrets.OAUTH_EXPIRED_CLIENT_ID }}
+      OAUTH_EXPIRED_CLIENT_SECRET: ${{ secrets.OAUTH_EXPIRED_CLIENT_SECRET }}
+      OAUTH_VIEWER_CLIENT_ID: ${{ secrets.OAUTH_VIEWER_CLIENT_ID }}
+      OAUTH_VIEWER_CLIENT_SECRET: ${{ secrets.OAUTH_VIEWER_CLIENT_SECRET }}
+      RETAIL_API_KEY: ${{ secrets.RETAIL_API_KEY }}
 
     steps:
 
@@ -75,6 +87,7 @@ jobs:
         # (e.g. load a schema.sql via `mysql` client instead).
         run: |
           ./gradlew flywayMigrate \
+            --no-configuration-cache \
             -Dflyway.url="$DB_JDBC_URL" \
             -Dflyway.user="$DB_USER" \
             -Dflyway.password="$DB_PASSWORD" \
@@ -87,7 +100,7 @@ jobs:
 
         env:
           JAVA_TOOL_OPTIONS: >
-            -DDB_JDBC_URL=jdbc:mysql://localhost:3306/shopkart_db
+            -DDB_JDBC_URL=jdbc:mysql://localhost:3306/shopkart
             -DDB_USER=root
             -DDB_PASSWORD=rajasoN@0073
             -Dallure.results.directory=build/allure-results
